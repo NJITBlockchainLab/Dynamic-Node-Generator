@@ -70,6 +70,53 @@ fs.writeFile(number + '-dynamic_start_nodes.sh', startNodeFileContent, function 
     console.log('Hello World > helloworld.txt');
 });
 
+let manageContent = `
+-d webserver ${[...Array(number)].map((_, index) => "node"+(index+1)).join(' ')} 
+
+-d synctest ${[...Array(number)].map((_, index) => "node"+(index+1)).join(' ')}
+`
+
+fs.writeFile(number + '-manage', manageContent, function (err) {
+    if (err) return console.log(err);
+    console.log('Hello World > helloworld.txt');
+});
+
+let vonGenFileContent = `
+if [ ! -z $ipAddresses ]; then
+    ipsArg="$ipAddresses"
+elif [ ! -z $ipAddress ]; then
+    ipsArg=${[...Array(number)].map((_, index) => "\"\$ipAddress\"").join(',')}
+else
+    ipsArg=${[...Array(number)].map((_, index) => "\"\$DOCKERHOST\"").join(',')}
+fi
+
+echo -e \\\\n\\\\n"================================================================================================"
+echo -e "Generating genesis transaction file:"
+echo -e "nodeArg: \${nodeArg}"
+echo -e "ipAddresses: \${ipsArg}"
+echo -e "genesisFilePath: \${genesisFilePath}"
+echo -e "------------------------------------------------------------------------------------------------"
+# Use supplied IP address
+echo -e generate_indy_pool_transactions \\
+    --nodes ${number} \\
+    --clients 0 \\
+    $nodeArg \\
+    --ips "$ipsArg" \\
+    \\\\n
+
+generate_indy_pool_transactions \\
+    --nodes ${number} \\
+    --clients 0 \\
+    $nodeArg \\
+    --ips "$ipsArg"
+`;
+
+fs.writeFile(number + '-von_generate_transactions', vonGenFileContent, function (err) {
+    if (err) return console.log(err);
+    console.log('Hello World > helloworld.txt');
+});
+
+
 port = original_port;
 let dockerComposeFileContent = `version: '3'
 services:
